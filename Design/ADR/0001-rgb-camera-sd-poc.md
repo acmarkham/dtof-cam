@@ -1,9 +1,10 @@
 # ADR-0001: Arduino RGB camera-to-SD proof of concept
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-22
 - Target: DFRobot ESP32-S3 AI Camera, DFR1154 hardware v1.1
 - Storage target: 128 GB microSDXC card formatted as exFAT
+- Implementation: [Phase01](../../Phase01/README.md), with [hardware validation](../../Phase01/validation/README.md).
 
 ## Context
 
@@ -18,7 +19,7 @@ Implement an Arduino/C++ sketch using `setup()` for initialisation and `loop()` 
 ### Frame format and cadence
 
 - Interpret RGB as a colour photograph. Configure the camera for sensor-generated JPEG (`PIXFORMAT_JPEG`) and write those bytes directly to `.jpg`; an intermediate RGB888 buffer and software JPEG encoder are unnecessary.
-- Start with VGA (640 x 480), JPEG quality setting 10, PSRAM frame buffers, and the example's latest-frame approach. Keep resolution, quality, and interval in one configuration section so later measurements can justify changes.
+- Initially validated at VGA (640 x 480). As of 2026-10-24, select the OV3660's maximum QXGA (2048 x 1536) at the user's request, retaining JPEG quality setting 10, PSRAM frame buffers, and the example's latest-frame approach. FHD (1920 x 1080) is the lower-resolution 16:9 alternative. Keep resolution, quality, and interval in one configuration section so later measurements can justify changes. Confirm saved JPEG dimensions and remeasure cadence after changing modes.
 - Enable PSRAM and use the board settings recommended by DFRobot. Record the tested Arduino-ESP32 core version, libraries, and board options when implementing; initialise configuration structures explicitly and adapt API names to that version.
 - Schedule against a monotonic deadline, rather than sleeping for a second after each write. The nominal interval is between acquisition requests, not between completed file writes. Allow camera auto-exposure to settle before starting the measured sequence.
 - If capture plus storage exceeds one second, log the overrun and skip elapsed deadlines. Resume on the next future deadline without a burst of catch-up captures. Report achieved cadence; sustained overruns fail the 1 fps acceptance criterion.
@@ -31,7 +32,7 @@ Centralise pin definitions in a board configuration header, using the vendor map
 
 | Resource | Phase 1 choice / reservation |
 | --- | --- |
-| Camera | Reuse the DFRobot camera mapping; retain its private camera control bus. |
+| Camera | Reuse the DFRobot camera mapping; retain the onboard camera/ALS control bus on GPIO8/9 and keep external Gravity I2C separate. |
 | SD | Use SdFat v2 `SdFs` over the onboard SPI wiring; SD chip select remains GPIO10. Replace the skeleton's Arduino `SD` backend for exFAT support. |
 | Acquisition indicator | GPIO3 onboard LED; example drives HIGH for on and LOW for off. |
 | IR illumination | GPIO47; initialise off and reserve for a later stage. |
@@ -58,7 +59,7 @@ Retaining Arduino `SD` with a custom ESP-IDF build is an alternative only after 
 Store files in the SD root, starting with `/000001.jpg`, then `/000002.jpg`, and so on. The stamp is a sequence number, not a wall-clock timestamp; no RTC or network time is required.
 
 1. At startup, scan six-digit `.jpg` and `.tmp` names and choose one more than the highest allocated number. Start at 1 on an empty card. Existing images and abandoned temporary files reserve their numbers.
-2. Before opening a new file, check that neither name exists, and create the temporary file with exclusive-create semantics (`O_WRONLY | O_CREAT | O_EXCL`). Never append to or overwrite an existing image. Keep one storage writer in Phase 1.
+2. Create the temporary file with exclusive-create semantics (`O_WRONLY | O_CREAT | O_EXCL`) and use a rename operation that rejects an existing destination. Never append to or overwrite an existing image. Keep one storage writer in Phase 1. These exclusive operations enforce collisions without separate existence checks, avoiding redundant linear directory scans; Phase01 bring-up showed those scans materially increase write latency as images accumulate.
 3. Write a new `NNNNNN.tmp`, require the returned byte count to equal the frame length, check SdFat sync and close results, then rename to `NNNNNN.jpg`. Announce success only after the full write, sync, close, and rename succeed. Always return the camera frame buffer, including on failures.
 4. Allocate numbers monotonically during the run; failed attempts may leave gaps. Preserve failed temporary files for inspection and do not present them as successful JPEGs. Do not write a counter to internal flash every second.
 5. At `999999`, stop and report sequence exhaustion rather than wrapping. Do not delete older images automatically when the card fills.
@@ -102,7 +103,7 @@ Run these on the actual v1.1 board; documentation review cannot establish hardwa
 Before capture testing, mount the actual 128 GB card as exFAT and confirm its usable capacity is approximately 128 GB decimal (119 GiB), less formatting overhead. Create, sync, close, rename, reopen, and verify a scratch file, then repeat after a restart. On expendable media, perform a checksum-verified write/read test that actually allocates and writes beyond 32 GB; preallocation alone does not prove access to that capacity. A computer-side full-capacity test can establish media health, but the board must also demonstrate access beyond 32 GB. Record card model, partition layout, allocation unit size, library/core versions, SPI clock, and results. An invalid or unsupported format must fail without reformatting or altering existing files.
 
 1. On an empty card, record for 10 minutes after settling. Expect 600 saved images for 600 scheduled slots, zero missed deadlines, and a mean acquisition interval of 1,000 ms within 1%. Record worst-case timing and file sizes; each capture-and-save must complete within its one-second budget.
-2. Decode every saved JPEG, confirm 640 x 480 colour output, correct orientation, ordered six-digit filenames, and scene changes without stale-frame sequences. Observe one distinct GPIO3 pulse per attempt and IR off.
+2. Decode every saved JPEG, confirm configured colour output (currently 2048 x 1536 QXGA), correct orientation, ordered six-digit filenames, and scene changes without stale-frame sequences. Observe one distinct GPIO3 pulse per attempt and IR off. Historical VGA results remain separate from QXGA validation.
 3. Restart and power-cycle with existing images present. Continue above the highest allocated number, leave prior files unchanged, and confirm an abandoned `.tmp` cannot cause a collision. Test sequence exhaustion with a prepared card.
 4. Exercise missing/full/removed SD, simulated partial write/rename failure, camera initialisation failure, and null-frame handling. Confirm clear errors, no false success or overwrite, LED off after failure, and frame-buffer release. Use temporary fault injection where faults cannot be reproduced safely on the bench.
 5. Perform a controlled power-interruption test with expendable media. Inspect prior files, the last image/temporary file, filesystem health, and restart numbering; record limitations rather than claiming transactional storage.

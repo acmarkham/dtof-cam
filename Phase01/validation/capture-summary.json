@@ -1,0 +1,11 @@
+{
+  "frames": 600,
+  "first_sequence": 413,
+  "last_sequence": 1012,
+  "mean_interval_us": 1000000,
+  "min_interval_us": 999990,
+  "max_interval_us": 1000010,
+  "max_operation_us": 609243,
+  "failures": 0,
+  "overruns": 0
+}

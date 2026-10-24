@@ -1,0 +1,21 @@
+{
+  "requested_frames": 30,
+  "expected_width": 2048,
+  "expected_height": 1536,
+  "passed": true,
+  "capture_timing_passed": true,
+  "first_sequence": 217,
+  "last_sequence": 246,
+  "mean_interval_us": 1000000,
+  "min_interval_us": 999997,
+  "max_interval_us": 1000003,
+  "max_operation_us": 493150,
+  "decoded_images": 30,
+  "unique_jpeg_hashes": 30,
+  "min_image_bytes": 107364,
+  "max_image_bytes": 107859,
+  "missed_delta": 0,
+  "restart_numbering_and_prior_image": "passed",
+  "firmware_sha256": "b470495e3a683fafc54e9da68ed683d3cf5e099baf8a376cf90dc265312affb7",
+  "date": "2026-10-24"
+}

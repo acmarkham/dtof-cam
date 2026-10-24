@@ -1,0 +1,20 @@
+{
+  "requested_frames": 600,
+  "passed": true,
+  "capture_log": "Phase01/validation/local/acceptance/serial.log",
+  "capture_timing_passed": true,
+  "first_sequence": 413,
+  "last_sequence": 1012,
+  "mean_interval_us": 1000000,
+  "min_interval_us": 999990,
+  "max_interval_us": 1000010,
+  "max_operation_us": 609243,
+  "decoded_images": 600,
+  "unique_jpeg_hashes": 600,
+  "min_image_bytes": 11372,
+  "max_image_bytes": 31135,
+  "missed_delta": 0,
+  "restart_numbering_and_prior_image": "passed",
+  "acquisition_firmware_sha256": "176474fc1eda4939ec9a7524e901f2e0d0650ad0cd2f78df27c5e092561a0d19",
+  "readback_firmware_sha256": "38ebbdb1a2fddee2a3600abce04ae77b34a8c9387fd9132eb6f5f9d4f0850cfd"
+}
