@@ -1,10 +1,24 @@
 # ADR-0002: TMF8829 long-range dTOF logging and appendable recording format
 
-- Status: Proposed
+- Status: Accepted; depth-only first stage implemented, histogram/binary stages pending
 - Date: 2026-10-24
 - Target: ams OSRAM **TMF8829**, on MIKROE LightRanger 14 Click, connected over the DFR1154 v1.1 Gravity connector
 - Related: [ADR-0001: RGB camera-to-SD PoC](0001-rgb-camera-sd-poc.md)
-- Initial implementation scope: separate Arduino/C++ sensor PoC, proposed `Phase02`
+- Initial implementation scope: separate Arduino/C++ sensor PoC, [Phase02](../../Phase02/README.md)
+
+## Staged implementation
+
+The requested first implementation stage discovers the sensor over Gravity I2C
+and saves depth CSVs at approximately 1 fps. It implements `DEPTH_ONLY`, including
+vendor patch loading, long-range configuration/readback, clock correction, session
+metadata and exFAT storage. Full histogram acquisition/export described below is
+the following stage; the binary format remains a subsequent storage stage. This
+depth-only milestone does not establish full ADR acceptance or the 11 m range.
+
+Hardware discovery confirmed the installed connection uses **SDA GPIO43 / SCL
+GPIO44**, at address `0x41`, chip ID/revision `0x9e/0x01`. This supersedes the
+proposed pin assignment in the original hardware discussion below. Phase02 uses
+the verified orientation first and probes the reverse orientation if absent.
 
 ## Context and decision
 

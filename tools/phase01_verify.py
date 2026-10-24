@@ -56,7 +56,8 @@ class Console:
         return fields(self.until("STATUS"))
 
     def get(self, sequence):
-        self.send(f"GET {sequence:06d}")
+        argument = sequence if isinstance(sequence, str) else f"{sequence:06d}"
+        self.send(f"GET {argument}")
         header = fields(self.until("FILE "))
         self.send("ACK FILE")
         expected = int(header["bytes"])
