@@ -1,6 +1,6 @@
 # ADR-0002: TMF8829 long-range dTOF logging and appendable recording format
 
-- Status: Accepted; depth-only first stage implemented, histogram/binary stages pending
+- Status: Accepted; depth and histogram acquisition implemented, binary recording pending
 - Date: 2026-10-24
 - Target: ams OSRAM **TMF8829**, on MIKROE LightRanger 14 Click, connected over the DFR1154 v1.1 Gravity connector
 - Related: [ADR-0001: RGB camera-to-SD PoC](0001-rgb-camera-sd-poc.md)
@@ -19,6 +19,14 @@ Hardware discovery confirmed the installed connection uses **SDA GPIO43 / SCL
 GPIO44**, at address `0x41`, chip ID/revision `0x9e/0x01`. This supersedes the
 proposed pin assignment in the original hardware discussion below. Phase02 uses
 the verified orientation first and probes the reverse orientation if absent.
+
+[Phase03](../../Phase03/README.md) implements the full-histogram readout stage:
+8×8 long-range T0, T1 and result packets are acquired as validated groups, with
+complete native packets retained in a bounded PSRAM cache and CRC-checked host
+export. Depth CSVs continue on SD; persistent histogram binary recording remains
+the next stage. The requested validation run for this phase is 30–60 measurement
+groups, rather than the depth stage's long endurance run. Physical long-range
+accuracy and bin-to-distance calibration remain separate checks.
 
 ## Context and decision
 

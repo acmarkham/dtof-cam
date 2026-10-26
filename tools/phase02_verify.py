@@ -16,7 +16,7 @@ from phase01_verify import Console, fields
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def validate_csv(data):
+def validate_csv(data, histogram_counts=(0, 0, 0)):
     text = data.decode("utf-8")
     if "\r" in text or not text.endswith("\n"):
         raise ValueError("CSV must use LF and end with a newline")
@@ -32,7 +32,9 @@ def validate_csv(data):
             lines.append(line)
     expected_meta = {
         "dtof_csv_version": "1", "config_id": "1", "width": "8,height=8,peaks=1",
-        "histogram_expected": "0", "histogram_received": "0", "histogram_complete": "0",
+        "histogram_expected": str(histogram_counts[0]),
+        "histogram_received": str(histogram_counts[1]),
+        "histogram_complete": str(histogram_counts[2]),
     }
     if any(metadata.get(k) != v for k, v in expected_meta.items()):
         raise ValueError("unexpected schema/config/histogram metadata")

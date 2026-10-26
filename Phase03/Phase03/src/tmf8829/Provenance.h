@@ -1,0 +1,3 @@
+#pragma once
+#define TMF_VENDOR_COMMIT "9c478afcf3a4bc7fdfc4b3e7c0721dac865696db"
+#define TMF_PATCH_SHA256 "473fbc7c5a3e54df9b02d6b00ee8424e10463f63d42737d8ee248511e2e06c28"
