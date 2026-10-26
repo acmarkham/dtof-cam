@@ -28,6 +28,11 @@ the next stage. The requested validation run for this phase is 30–60 measureme
 groups, rather than the depth stage's long endurance run. Physical long-range
 accuracy and bin-to-distance calibration remain separate checks.
 
+[Phase04](../../Phase04/README.md) integrates QXGA RGB and depth-only capture in
+30-second bursts with 10-second timer sleep. Its synchronization contract and
+per-burst folder layout are specified in [ADR-0003](0003-synchronized-rgb-depth-bursts.md).
+It does not implement the persistent histogram binary stream proposed below.
+
 ## Context and decision
 
 The sensor referred to as “TMS8829” in the request is understood to be the **TMF8829** already identified for this project. The immediate objective is to acquire long-range **8 x 8 depth frames**, save one simple CSV per frame to the existing exFAT SD card, and support reading the **complete histogram output** as well. A later stage will append depth and histogram records to files spanning approximately one minute or a triggered event.
