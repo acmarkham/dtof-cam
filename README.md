@@ -18,3 +18,7 @@ ESP32 cam + dTOF sensor
 [Phase05 independent 10 fps depth and 1 fps QXGA burst recording](Phase05/README.md).
 
 [Independent stream timing and storage decision](Design/ADR/0004-independent-depth-rgb-bursts.md).
+
+[Phase06 continuous 2 fps depth motion detection and red LED](Phase06/README.md).
+
+[Motion threshold and validity decision](Design/ADR/0005-consecutive-depth-motion-detection.md).
