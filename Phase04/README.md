@@ -94,3 +94,29 @@ device held for diagnosis. `--skip-sleep-check` is available for bring-up.
 `--manifest-only` skips data-file downloads for quick wakeup diagnosis and is
 not full acceptance verification.
 Downloaded scene data and detailed logs stay under ignored `validation/local/`.
+
+## RGB/depth videos
+
+With Pillow (from `tools/requirements.txt`) and FFmpeg/FFprobe on PATH, render
+every completed burst on a capture card:
+
+```powershell
+rtk python tools/burst_video.py E:/bursts --output Phase04/validation/local/videos --speed 2
+```
+
+Each burst produces an H.264 MP4 with RGB beside the 8×8 depth grid rotated
+90 degrees clockwise then mirrored left/right, whole centimetres in each valid
+cell, and a preview JPEG.
+Cell labels round to the nearest integer (half up); colors use the full distance
+precision. Invalid cells are grey
+and marked `N/A`. A shared reversed Viridis color scale (near yellow, far purple)
+covers all input bursts, rounded
+up to the next 100 cm. Source CSV coordinates `(x, y)` map to display
+`(y, x)`; RGB retains its original orientation.
+
+The renderer checks the manifest RGB/depth CRCs and depth frame association.
+Recorded camera timestamp intervals are divided by `--speed`; the last pair is
+held for one nominal period divided by that speed. Output uses 30 fps with held
+frames, so timing is quantized to 1/30 second. `render_report.json` records the
+color range, output dimensions and verified durations. Existing MP4s are never
+overwritten; use a fresh output directory to render again.

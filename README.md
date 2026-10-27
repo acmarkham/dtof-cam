@@ -14,3 +14,7 @@ ESP32 cam + dTOF sensor
 [Phase04 synchronized QXGA RGB/depth bursts and timer sleep](Phase04/README.md).
 
 [Burst recording and synchronization decision](Design/ADR/0003-synchronized-rgb-depth-bursts.md).
+
+[Phase05 independent 10 fps depth and 1 fps QXGA burst recording](Phase05/README.md).
+
+[Independent stream timing and storage decision](Design/ADR/0004-independent-depth-rgb-bursts.md).
